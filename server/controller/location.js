@@ -101,3 +101,41 @@ export const getSingleLocation = async (req, res) => {
     return handleCatchError(res);
   }
 };
+
+export const deleteLocation = async (req, res) => {
+  const { id } = req.params;
+
+  const validator = new Validator();
+  validator.inputIsNumber(id, 'id');
+
+  const errors = validator.validationErrors();
+
+  if (errors) {
+    return res.status(400).send({
+      error: errors,
+    });
+  }
+
+  try {
+    const location = await Location.findByPk(id);
+
+    if (!location) {
+      return res.status(404).send({
+        error: 'this location does not exist or has been previously deleted',
+      });
+    }
+
+    const subLocations = await Location.findAll({ where: { parentId: location.id } });
+    await subLocations.forEach((locationInstance) => {
+      locationInstance.update({ parentId: null });
+    });
+
+    await location.destroy();
+
+    return res.status(200).send({
+      message: 'location has been successfully deleted',
+    });
+  } catch (error) {
+    return handleCatchError(res);
+  }
+};

@@ -120,4 +120,39 @@ describe('Location', async () => {
       expect(response.body.location.parentId).toBe(1);
     });
   });
+
+  describe('/DELETE requests', () => {
+    it('should return a 400 status if no id is sent in the request', async () => {
+      expect.assertions(3);
+      const response = await request(app).delete(`/api/v1/locations/${nanId}`);
+      expect(response.statusCode).toEqual(400);
+      expect(response.body).toHaveProperty(['error']);
+      expect(response.body.error[0]).toBe('id must be a number');
+    });
+
+    it('should return when a 404 status if location id requested does not exist', async () => {
+      expect.assertions(3);
+      const response = await request(app).delete(`/api/v1/locations/${notExistId}`);
+      expect(response.statusCode).toEqual(404);
+      expect(response.body).toHaveProperty(['error']);
+      expect(response.body.error).toBe('this location does not exist or has been previously deleted');
+    });
+
+    it('should display an internal server error message if there is a sequelize error', async () => {
+      expect.assertions(3);
+      const response = await request(app).delete(`/api/v1/locations/${maxOutId}`);
+      expect(response.statusCode).toEqual(500);
+      expect(response.body).toHaveProperty(['message']);
+      expect(response.body.message).toBe('We encountered an error. Please try again later');
+    });
+
+    it('should delete a location when requested with an id', async () => {
+      const locationId = 1;
+      expect.assertions(3);
+      const response = await request(app).delete(`/api/v1/locations/${locationId}`);
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toHaveProperty(['message']);
+      expect(response.body.message).toBe('location has been successfully deleted');
+    });
+  });
 });
