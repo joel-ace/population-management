@@ -48,7 +48,7 @@ export const createLocation = async (req, res) => {
       });
     }
 
-    ancestorIds = await getLocationAncestors(parentLocation);
+    ancestorIds = parentId && await getLocationAncestors(parentLocation);
 
     const location = await Location.create({
       name,
@@ -63,7 +63,16 @@ export const createLocation = async (req, res) => {
     }
 
     return res.status(201).send({
-      location,
+      location: {
+        id: location.id,
+        name: location.name,
+        femalePopulation: location.femalePopulation,
+        malePopulation: location.malePopulation,
+        totalPopulation: location.totalPopulation,
+        parentId: getDirectParentId(location.parentId),
+        createdAt: location.createdAt,
+        updatedAt: location.updatedAt,
+      },
     });
   } catch (error) {
     return res.status(400).send({
@@ -175,7 +184,7 @@ export const updateLocation = async (req, res) => {
       });
     }
 
-    const ancestorIds = await getLocationAncestors(parentLocation);
+    const ancestorIds = parentId && await getLocationAncestors(parentLocation);
 
     const location = await Location.findByPk(id);
 
@@ -202,7 +211,16 @@ export const updateLocation = async (req, res) => {
     }
 
     return res.status(200).send({
-      location: updatedLocation,
+      location: {
+        id: updatedLocation.id,
+        name: updatedLocation.name,
+        femalePopulation: updatedLocation.femalePopulation,
+        malePopulation: updatedLocation.malePopulation,
+        totalPopulation: updatedLocation.totalPopulation,
+        parentId: getDirectParentId(updatedLocation.parentId),
+        createdAt: updatedLocation.createdAt,
+        updatedAt: updatedLocation.updatedAt,
+      },
     });
   } catch (error) {
     return handleCatchError(res);

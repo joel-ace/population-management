@@ -5,7 +5,7 @@
 A simple Population management system that user can use to to insert and view populations of different location.
 
 ## API Documentation
-The API has routes, each dedicated to a single task that uses HTTP response codes to indicate API status and errors. View full API documentation [here](https://#/)
+The API has routes, each dedicated to a single task that uses HTTP response codes to indicate API status and errors. View full API documentation [here](https://p-man.herokuapp.com)
 
 
 ## Technologies Used

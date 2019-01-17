@@ -37,7 +37,7 @@ describe('Location', async () => {
       expect(response.body.location.name).toBe('Odulani');
       expect(response.body.location.malePopulation).toBe(20);
       expect(response.body.location.femalePopulation).toBe(30);
-      expect(response.body.location.parentId).toBe('1,2');
+      expect(response.body.location.parentId).toBe(2);
       expect(response.body.location.totalPopulation).toBe(50);
     });
 
@@ -198,7 +198,7 @@ describe('Location', async () => {
       expect(response.body.location.name).toBe('Yaba');
       expect(response.body.location.malePopulation).toBe(1000);
       expect(response.body.location.femalePopulation).toBe(1500);
-      expect(response.body.location.parentId).toBe('1,4');
+      expect(response.body.location.parentId).toBe(4);
       expect(response.body.location.totalPopulation).toBe(2500);
     });
   });
