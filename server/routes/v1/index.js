@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   createLocation,
+  getAllLocations,
 } from '../../controller/location';
 
 const Router = express.Router();
@@ -13,6 +14,7 @@ Router.route('/')
   });
 
 Router.route('/locations')
-  .post(createLocation);
+  .post(createLocation)
+  .get(getAllLocations);
 
 export default Router;
