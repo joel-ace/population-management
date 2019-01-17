@@ -70,3 +70,34 @@ export const getAllLocations = async (req, res) => {
     return handleCatchError(res);
   }
 };
+
+export const getSingleLocation = async (req, res) => {
+  const { id } = req.params;
+
+  const validator = new Validator();
+  validator.inputIsNumber(id, 'id');
+
+  const errors = validator.validationErrors();
+
+  if (errors) {
+    return res.status(400).send({
+      error: errors,
+    });
+  }
+
+  try {
+    const location = await Location.findByPk(id);
+
+    if (!location) {
+      return res.status(404).send({
+        message: 'this location does not exist or has been previously deleted',
+      });
+    }
+
+    return res.status(200).send({
+      location,
+    });
+  } catch (error) {
+    return handleCatchError(res);
+  }
+};
