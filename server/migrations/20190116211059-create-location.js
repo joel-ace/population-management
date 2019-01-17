@@ -19,7 +19,7 @@ module.exports = {
       type: Sequelize.INTEGER
     },
     parentId: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     createdAt: {
       allowNull: false,

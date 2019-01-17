@@ -20,7 +20,7 @@ export default (sequelize, DataTypes) => {
       defaultValue: 0
     },
     parentId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
   });
