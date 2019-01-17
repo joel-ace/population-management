@@ -3,6 +3,7 @@ import {
   createLocation,
   getAllLocations,
   getSingleLocation,
+  deleteLocation,
 } from '../../controller/location';
 
 const Router = express.Router();
@@ -19,7 +20,8 @@ Router.route('/locations')
   .get(getAllLocations);
 
 Router.route('/locations/:id')
-  .get(getSingleLocation);
+  .get(getSingleLocation)
+  .delete(deleteLocation);
 
 
 export default Router;
