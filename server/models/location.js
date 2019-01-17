@@ -21,16 +21,8 @@ export default (sequelize, DataTypes) => {
     },
     parentId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
   });
-
-  Location.associate = (models) => {
-    Location.belongsTo(models.Location, {
-      foreignKey: 'id',
-      as: 'parentId',
-    });
-  };
-
   return Location;
 };
