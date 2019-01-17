@@ -47,7 +47,7 @@ export const createLocation = async (req, res) => {
       malePopulation,
       femalePopulation,
       parentId: parentId || null,
-      totalPopulation: malePopulation + femalePopulation,
+      totalPopulation: parseInt(malePopulation, 10) + parseInt(femalePopulation, 10),
     });
 
     return res.status(201).send({
@@ -101,6 +101,73 @@ export const getSingleLocation = async (req, res) => {
     return handleCatchError(res);
   }
 };
+
+export const updateLocation = async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    malePopulation,
+    femalePopulation,
+    parentId
+  } = req.body;
+
+  const validator = new Validator();
+  validator.inputIsNumber(id, 'id');
+  validator.isEmptyInput(name, 'name');
+  validator.isEmptyInput(malePopulation, 'malePopulation');
+  validator.inputIsNumber(malePopulation, 'malePopulation');
+  validator.isEmptyInput(femalePopulation, 'femalePopulation');
+  validator.inputIsNumber(femalePopulation, 'femalePopulation');
+
+  if (parentId) {
+    validator.inputIsNumber(parentId, 'parentId');
+  }
+
+  const errors = validator.validationErrors();
+
+  if (errors) {
+    return res.status(400).send({
+      error: errors,
+    });
+  }
+
+  try {
+    let parentLocation = null;
+
+    if (parentId) {
+      parentLocation = await Location.findByPk(parentId);
+    }
+
+    if (parentId && !parentLocation) {
+      return res.status(400).send({
+        error: 'parentId does not belong to an existing location',
+      });
+    }
+
+    const location = await Location.findByPk(id);
+
+    if (!location) {
+      return res.status(404).send({
+        error: 'this location does not exist or has been previously deleted',
+      });
+    }
+
+    const updatedLocation = await location.update({
+      name,
+      malePopulation,
+      femalePopulation,
+      parentId: parentId || null,
+      totalPopulation: parseInt(malePopulation, 10) + parseInt(femalePopulation, 10),
+    });
+
+    return res.status(200).send({
+      location: updatedLocation,
+    });
+  } catch (error) {
+    return handleCatchError(res);
+  }
+};
+
 
 export const deleteLocation = async (req, res) => {
   const { id } = req.params;

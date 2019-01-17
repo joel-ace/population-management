@@ -121,6 +121,88 @@ describe('Location', async () => {
     });
   });
 
+  describe('/PUT requests', () => {
+    it('should return an error array if the request inputs are empty', async () => {
+      const location = {
+        name: 'Shomolu',
+        malePopulation: '',
+        femalePopulation: 'ygubh',
+      };
+      expect.assertions(4);
+      const response = await request(app).put('/api/v1/locations/3')
+        .send(location);
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toHaveProperty(['error']);
+      expect(response.body.error).toContain('malePopulation cannot be empty');
+      expect(response.body.error).toContain('femalePopulation must be a number');
+    });
+
+    it('should return an error array if the parentId does not belong to an existing location', async () => {
+      const location = {
+        name: 'Shomolu',
+        malePopulation: 20,
+        femalePopulation: 30,
+        parentId: 200
+      };
+      expect.assertions(3);
+      const response = await request(app).put('/api/v1/locations/3')
+        .send(location);
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toHaveProperty(['error']);
+      expect(response.body.error).toContain('parentId does not belong to an existing location');
+    });
+
+    it('should return a 404 status if location id requested does not exist', async () => {
+      const location = {
+        name: 'Shomolu',
+        malePopulation: 20,
+        femalePopulation: 30,
+        parentId: 2
+      };
+      expect.assertions(3);
+      const response = await request(app).put(`/api/v1/locations/${notExistId}`)
+        .send(location);
+      expect(response.statusCode).toEqual(404);
+      expect(response.body).toHaveProperty(['error']);
+      expect(response.body.error).toBe('this location does not exist or has been previously deleted');
+    });
+
+    it('should display an internal server error message if there is a sequelize error', async () => {
+      const location = {
+        name: 'Shomolu',
+        malePopulation: 20,
+        femalePopulation: 30,
+        parentId: 2
+      };
+      expect.assertions(3);
+      const response = await request(app).put(`/api/v1/locations/${maxOutId}`)
+        .send(location);
+      expect(response.statusCode).toEqual(500);
+      expect(response.body).toHaveProperty(['message']);
+      expect(response.body.message).toBe('We encountered an error. Please try again later');
+    });
+
+    it('should update a location successfuly and return a location object', async () => {
+      const location = {
+        name: 'Yaba',
+        malePopulation: 1000,
+        femalePopulation: 1500,
+        parentId: 4
+      };
+      expect.assertions(8);
+      const response = await request(app).put('/api/v1/locations/3')
+        .send(location);
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty(['location']);
+      expect(response.body.location.id).toBe(3);
+      expect(response.body.location.name).toBe('Yaba');
+      expect(response.body.location.malePopulation).toBe(1000);
+      expect(response.body.location.femalePopulation).toBe(1500);
+      expect(response.body.location.parentId).toBe(4);
+      expect(response.body.location.totalPopulation).toBe(2500);
+    });
+  });
+
   describe('/DELETE requests', () => {
     it('should return a 400 status if no id is sent in the request', async () => {
       expect.assertions(3);
@@ -130,7 +212,7 @@ describe('Location', async () => {
       expect(response.body.error[0]).toBe('id must be a number');
     });
 
-    it('should return when a 404 status if location id requested does not exist', async () => {
+    it('should return a 404 status if location id requested does not exist', async () => {
       expect.assertions(3);
       const response = await request(app).delete(`/api/v1/locations/${notExistId}`);
       expect(response.statusCode).toEqual(404);

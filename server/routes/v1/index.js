@@ -3,6 +3,7 @@ import {
   createLocation,
   getAllLocations,
   getSingleLocation,
+  updateLocation,
   deleteLocation,
 } from '../../controller/location';
 
@@ -21,6 +22,7 @@ Router.route('/locations')
 
 Router.route('/locations/:id')
   .get(getSingleLocation)
+  .put(updateLocation)
   .delete(deleteLocation);
 
 
