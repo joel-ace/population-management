@@ -1,6 +1,11 @@
 import { Location } from '../models';
 import Validator from '../helpers/validator';
-import { handleCatchError } from '../helpers/utils';
+import {
+  handleCatchError,
+  getLocationAncestors,
+  updateAncestorPopulation,
+  getDirectParentId,
+} from '../helpers/utils';
 
 export const createLocation = async (req, res) => {
   const {
@@ -31,6 +36,7 @@ export const createLocation = async (req, res) => {
 
   try {
     let parentLocation = null;
+    let ancestorIds = null;
 
     if (parentId) {
       parentLocation = await Location.findByPk(parentId);
@@ -42,13 +48,19 @@ export const createLocation = async (req, res) => {
       });
     }
 
+    ancestorIds = await getLocationAncestors(parentLocation);
+
     const location = await Location.create({
       name,
       malePopulation,
       femalePopulation,
-      parentId: parentId || null,
+      parentId: ancestorIds || null,
       totalPopulation: parseInt(malePopulation, 10) + parseInt(femalePopulation, 10),
     });
+
+    if (parentId) {
+      await updateAncestorPopulation(ancestorIds, malePopulation, femalePopulation);
+    }
 
     return res.status(201).send({
       location,
@@ -63,8 +75,18 @@ export const createLocation = async (req, res) => {
 export const getAllLocations = async (req, res) => {
   try {
     const locations = await Location.findAll();
+    const locationsArray = locations.map(location => ({
+      id: location.id,
+      name: location.name,
+      femalePopulation: location.femalePopulation,
+      malePopulation: location.malePopulation,
+      totalPopulation: location.totalPopulation,
+      parentId: getDirectParentId(location.parentId),
+      createdAt: location.createdAt,
+      updatedAt: location.updatedAt,
+    }));
     return res.status(200).send({
-      locations,
+      locations: locationsArray,
     });
   } catch (error) {
     return handleCatchError(res);
@@ -95,7 +117,16 @@ export const getSingleLocation = async (req, res) => {
     }
 
     return res.status(200).send({
-      location,
+      location: {
+        id: location.id,
+        name: location.name,
+        femalePopulation: location.femalePopulation,
+        malePopulation: location.malePopulation,
+        totalPopulation: location.totalPopulation,
+        parentId: getDirectParentId(location.parentId),
+        createdAt: location.createdAt,
+        updatedAt: location.updatedAt,
+      },
     });
   } catch (error) {
     return handleCatchError(res);
@@ -144,6 +175,8 @@ export const updateLocation = async (req, res) => {
       });
     }
 
+    const ancestorIds = await getLocationAncestors(parentLocation);
+
     const location = await Location.findByPk(id);
 
     if (!location) {
@@ -152,13 +185,21 @@ export const updateLocation = async (req, res) => {
       });
     }
 
+    if (location.parentId && !location.parentId.split(',').includes(`${parentLocation.id}`)) {
+      await updateAncestorPopulation(location.parentId, -(location.malePopulation), -(location.femalePopulation));
+    }
+
     const updatedLocation = await location.update({
       name,
       malePopulation,
       femalePopulation,
-      parentId: parentId || null,
+      parentId: ancestorIds || null,
       totalPopulation: parseInt(malePopulation, 10) + parseInt(femalePopulation, 10),
     });
+
+    if (parentId && ancestorIds) {
+      await updateAncestorPopulation(ancestorIds, malePopulation, femalePopulation);
+    }
 
     return res.status(200).send({
       location: updatedLocation,
@@ -192,10 +233,9 @@ export const deleteLocation = async (req, res) => {
       });
     }
 
-    const subLocations = await Location.findAll({ where: { parentId: location.id } });
-    await subLocations.forEach((locationInstance) => {
-      locationInstance.update({ parentId: null });
-    });
+    if (location.parentId) {
+      await updateAncestorPopulation(location.parentId, -(location.malePopulation), -(location.femalePopulation));
+    }
 
     await location.destroy();
 

@@ -23,7 +23,7 @@ describe('Location', async () => {
   describe('/POST requests', () => {
     it('should return a locations object if successful', async () => {
       const location = {
-        name: 'Shomolu',
+        name: 'Odulani',
         malePopulation: 20,
         femalePopulation: 30,
         parentId: 2
@@ -34,10 +34,10 @@ describe('Location', async () => {
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty(['location']);
       expect(response.body.location.id).toBe(5);
-      expect(response.body.location.name).toBe('Shomolu');
+      expect(response.body.location.name).toBe('Odulani');
       expect(response.body.location.malePopulation).toBe(20);
       expect(response.body.location.femalePopulation).toBe(30);
-      expect(response.body.location.parentId).toBe(2);
+      expect(response.body.location.parentId).toBe('1,2');
       expect(response.body.location.totalPopulation).toBe(50);
     });
 
@@ -79,8 +79,8 @@ describe('Location', async () => {
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty(['locations']);
       expect(response.body.locations.length).toBe(5);
-      expect(response.body.locations[0].name).toBe('Shomolu');
-      expect(response.body.locations[0].totalPopulation).toBe(1810);
+      expect(response.body.locations[0].name).toBe('Anthony');
+      expect(response.body.locations[0].totalPopulation).toBe(420);
     });
     it('should return a 400 status if no id is sent in the request', async () => {
       expect.assertions(3);
@@ -114,9 +114,9 @@ describe('Location', async () => {
       expect(response.body).toHaveProperty(['location']);
       expect(response.body.location.id).toBe(locationId);
       expect(response.body.location.name).toBe('Bariga');
-      expect(response.body.location.femalePopulation).toBe(310);
-      expect(response.body.location.malePopulation).toBe(260);
-      expect(response.body.location.totalPopulation).toBe(570);
+      expect(response.body.location.femalePopulation).toBe(470);
+      expect(response.body.location.malePopulation).toBe(570);
+      expect(response.body.location.totalPopulation).toBe(1040);
       expect(response.body.location.parentId).toBe(1);
     });
   });
@@ -145,7 +145,7 @@ describe('Location', async () => {
         parentId: 200
       };
       expect.assertions(3);
-      const response = await request(app).put('/api/v1/locations/3')
+      const response = await request(app).put('/api/v1/locations/30')
         .send(location);
       expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty(['error']);
@@ -198,7 +198,7 @@ describe('Location', async () => {
       expect(response.body.location.name).toBe('Yaba');
       expect(response.body.location.malePopulation).toBe(1000);
       expect(response.body.location.femalePopulation).toBe(1500);
-      expect(response.body.location.parentId).toBe(4);
+      expect(response.body.location.parentId).toBe('1,4');
       expect(response.body.location.totalPopulation).toBe(2500);
     });
   });
@@ -229,7 +229,7 @@ describe('Location', async () => {
     });
 
     it('should delete a location when requested with an id', async () => {
-      const locationId = 1;
+      const locationId = 5;
       expect.assertions(3);
       const response = await request(app).delete(`/api/v1/locations/${locationId}`);
       expect(response.statusCode).toEqual(200);
