@@ -1,4 +1,7 @@
 import express from 'express';
+import {
+  createLocation,
+} from '../../controller/location';
 
 const Router = express.Router();
 
@@ -9,10 +12,7 @@ Router.route('/')
     });
   });
 
-Router.route('/locations').get((req, res) => {
-  res.status(200).send({
-    locations: 'Welcome',
-  });
-});
+Router.route('/locations')
+  .post(createLocation);
 
 export default Router;

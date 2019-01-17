@@ -2,7 +2,7 @@
   "name": "population-management",
   "version": "1.0.0",
   "description": "a mock population management system",
-  "main": "app.js",
+	"main": "app.js",
   "scripts": {
 		"migrate:dev": "NODE_ENV=development sequelize db:migrate:undo:all && NODE_ENV=development sequelize db:migrate",
 		"migrate:prod": "NODE_ENV=production sequelize db:migrate:undo:all && NODE_ENV=production sequelize db:migrate",
